@@ -1,6 +1,5 @@
 import {z} from 'zod';
 
-
 export const signInSchema = z.object({
     identifier : z.string().length(0, "Identifier cannot be empty"),
     password : z.string()

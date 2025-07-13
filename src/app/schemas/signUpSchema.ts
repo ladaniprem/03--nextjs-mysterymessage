@@ -5,8 +5,8 @@ export const SignUpSchema = z
     .min(2,"username must be at least 2 characters")
     .max(20, "username must be at most 20 characters")
     .regex(/^[a-zA-Z0-9_]+$/, "username can only contain letters, numbers, and underscores")
-    
 
+    
     export const signUpSchema = z.object({
         username : SignUpSchema,
         email: z.string().email("Invalid email address"),
