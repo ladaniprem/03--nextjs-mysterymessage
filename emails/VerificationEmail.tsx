@@ -59,7 +59,7 @@ export default function verificationEmail({
             </Row>
             <Row>
                 <Button
-                    href="https://mysterymessage.vercel.app"
+                    href="http://localhost:3000/"
                     style={{
                         background: '#000',
                         color: '#fff',
