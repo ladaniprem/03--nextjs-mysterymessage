@@ -111,7 +111,7 @@ export async function GET(){
                 message: "Error is getting message acceptance status "
             },
             {
-                status: 400
+                status: 500
             }
         );
     }
