@@ -29,8 +29,62 @@ export async function GET(){
     const userId = new mongoose.Types.ObjectId(user._id);
 
     try {
-        const user = 
-    } catch (error) {
-        
+        const user = await UserModel.aggregate([
+            {
+            $match: {
+                id:userId
+            }
+            },
+            {
+                $unwind : '$message'
+            },
+            {
+                $sort:{
+                    'message.createdAt': -1
+                }
+            },
+            {
+                $group:{
+                    _id:'$_id',
+                    messages: {
+                        $push :'$messages'
+                    }
+                }
+            }
+
+        ])
+        if(!user|| user.length===0){
+            return Response.json(
+                {
+                    success:false,
+                    message:"No Authenticated"
+                },
+                {
+                    status : 401
+                }
+            )
+        }
+
+             return Response.json(
+                {
+                    success:true,
+                    message:user[0].messages
+                },
+                {
+                    status : 200
+                }
+            )
+        }
+     catch (error) {
+        return Response.json(
+            {
+                success: false,
+                message: "Error fetching user data",
+                error: error instanceof Error ? error.message : "Unknown error"
+            },
+            {
+                status: 500
+            }
+        );
     }
 }
