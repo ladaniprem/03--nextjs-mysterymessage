@@ -1,22 +1,23 @@
 import {useForm} from "react-hook-form"
 import { z } from "zod"
 import axios, { AxiosError } from 'axios'
-import Link from "next/link"
 import { useState,useEffect} from "react"
 import { useDebounceValue } from 'usehooks-ts'
-import { useRouter } from "next/router"
+import { useRouter } from "next/navigation"
 import { signUpSchema } from "@/schemas/signUpSchema"
-import { message } from '../../../model/User.model';
 import { ApiResponse } from "@/types/ApiResponse"
-function page() {
+import { zodResolver } from "@hookform/resolvers/zod"
+import { Toaster } from "@/components/ui/sonner"
+
+const Page = () => {
   const [username,setUsername] =  useState('');
-  const [usenameMessage,setUsernameMessage] = useState('')
-  const [useCheckingUsername,setCheckingUsername] = useState(false);
+  const [usernameMessage,setUsernameMessage] = useState('')
+  const [isCheckingUsername,setCheckingUsername] = useState(false);
   const [isSubmitting,setIsSubmitting] = useState(false);
 
   const debounceUsername = useDebounceValue(username,300)
    const {toast} = useToast()
-   const router = useRouter();
+  const router = useRouter();
 
    // zod Implementation
 
@@ -36,11 +37,11 @@ function page() {
       setUsernameMessage('')
      } 
      try {
-    const response = await axios.get(`/get/check-username-unique?username=${debounceUsername}`)
-    setUsernameMessage(response.data.message)
+      const response = await axios.get(`/api/check-username-unique?username=${debounceUsername}`)
+      setUsernameMessage(response.data.message)
      } catch (error) {
       const axiosError  = error as AxiosError<ApiResponse>;
-      setCheckingUsername(
+      setUsernameMessage(
         axiosError.response?.data.message ?? "Error checking Username"
       )
      }
@@ -48,26 +49,51 @@ function page() {
       setCheckingUsername(false)
      }
     }
-   },[debounceUsername])
+    checkUsernameUnique();
+   }, [debounceUsername]);
 
    const onSubmit = async (data:z.infer< typeof signUpSchema>) => {
-    
-    setIsSubmitting(true)
-    try{
-
-    }
-    catch{
-       
+    try {
+      setIsSubmitting(true);
+      try{
+      const response = await axios.post<ApiResponse>('/api/sign-in', data);
+      toast({
+        title: "Success",
+        description: response.data.message
+      });
+      router.replace(`verify/${username}`)
+      setIsSubmitting(false)
+    } catch (error) {
+      const axiosError = error as AxiosError<ApiResponse>;
+      let errorMessage = axiosError.response?.data.message
+      toast({
+        title: "signup failed",
+        description: axiosError.response?.data.message ?? "Something went wrong",
+        variant: "destructive"
+      });
+    } finally {
+      setIsSubmitting(false);
     }
    }
-
-
-
+  }
   return (
     <div>
-      page
+      <Toaster />
+      <form onSubmit={form.handleSubmit(onSubmit)}>
+        <div>
+          <input 
+            {...form.register('username')}
+            onChange={(e) => setUsername(e.target.value)}
+          />
+          {usernameMessage && <p>{usernameMessage}</p>}
+          {isCheckingUsername && <p>Checking username...</p>}
+        </div>
+        <button type="submit" disabled={isSubmitting}>
+          {isSubmitting ? 'Submitting...' : 'Submit'}
+        </button>
+      </form>
     </div>
   )
 }
 
-export default page
+export default Page
