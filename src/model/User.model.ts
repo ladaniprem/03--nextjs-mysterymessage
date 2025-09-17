@@ -65,8 +65,9 @@ export const UserSchema:Schema<User> = new Schema({
         default: false, // default value for isVerified is false
        },
        isAcceptingMessage: {
-        type : Boolean,
-        default: true, // default value for isAcceptingMessage is true
+        type: Boolean,
+        default: true,
+        // default value for isAcceptingMessage is true
        },
        message: [MessageSchema]
 })
