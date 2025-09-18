@@ -18,7 +18,6 @@ import { useSession } from 'next-auth/react'
 interface Message {
   _id: string;
   content: string;
-  // Add other message properties as needed
 }
 
 const Page = () => {
